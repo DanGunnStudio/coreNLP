@@ -1,0 +1,82 @@
+---
+title: "pym_test"
+author: "Dan Gunn"
+date: "2023-08-02"
+output: html_document
+---
+
+# The Narrative of Arthur Gordon Pym
+This is a notebook to learn the core NLP package from Stanford and NLP generally.
+Using the only novel by Edgar Allen Poe as an example. 
+https://www.gutenberg.org/ebooks/51060
+Importing Arthur Gordon Pym of Nantucket text from Project Gutenberg
+
+```{r}
+#installing libraries
+library(tidyverse)
+library(coreNLP)
+library(cleanNLP)
+
+#loading the English model
+initCoreNLP("../NLP_library/stanford_core_models", type = c("english"), 
+            parameterFile = NULL, 
+            mem = "4g")
+```
+Importing Arthur Gordon Pym of Nantucket text from Project Gutenberg
+```{r}
+pym_full_raw <- read_delim("https://www.gutenberg.org/cache/epub/51060/pg51060.txt", delim = "\t")
+```
+Turning it into a character vector.
+```{r}
+pym_full_flat <- str_flatten(deframe(pym_full_raw))
+```
+Just choosing a small excerpt to work with.
+```{r}
+pym_excerpt <- "Augustus Barnard thoroughly entered into my state of mind. It is probable, indeed, that our intimate communion, Augustus and mine, had resulted in a partial interchange of character. About eighteen months after the period of the Ariel's disaster, the firm of Lloyd and Vredenburgh (a house connected in some manner with the Messieurs Enderby, I believe, of Liverpool) were engaged in repairing and fitting out the brig Grampus of Philadelphia for a whaling voyage."
+```
+#Creating an annotation object from the excerpt character vector.
+```{r}
+pym_ex_annotated <- annotateString(pym_excerpt)
+str(pym_ex_annotated)
+
+```
+#core references show the sentence character starts /end etc.
+```{r, R.options=list(max.print=10)}
+getCoreference(pym_ex_annotated)
+```
+#shows the parsed values
+```{r, R.options=list(max.print=10)}
+getParse(pym_ex_annotated)
+```
+#gives dependency tags by location and governors.
+```{r, R.options=list(max.print=10)}
+getDependency(pym_ex_annotated)
+```
+#gives sentiment level data by sentence level!
+```{r, R.options=list(max.print=10)}
+getSentiment(pym_ex_annotated)
+```
+#getting tokens? 
+```{r, R.options=list(max.print=10)}
+getToken(pym_ex_annotated)
+```
+## Finding the persons
+How to I access the tokens that have and entity tagged? 
+```{r}
+pym_ex_annotated$token$NER
+```
+```{r}
+pym_tokens <- getToken(pym_ex_annotated)
+pym_tokens %>%
+  filter(NER != "O") #oddly Oh and not zero.
+```
+### Evaluating the NER output.
+* It missed that Ariel was a vessel. 
+* Lloyd and Vrendenburgh were both names and ORGs. 
+* And it just didn't flag Grampus.
+
+
+## Finding the Vessels
+
+
+## Mapping the Sentiment
